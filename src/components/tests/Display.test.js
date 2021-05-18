@@ -1,13 +1,46 @@
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 
+import Display from "../Display";
+import fetchShow from "../../api/fetchShow";
+jest.mock("../../api/fetchShow");
 
 
+const testShow = {
+    //add in approprate test data structure here.
+    name: "Psych",
+    summary: "",
+    seasons: [
+        {
+        id: "1",
+        name: "season 1",
+        episodes: [],
+        },
+        {
+        id: "2",
+        name: "season 2",
+        episodes: [],
+        }
+]
+}
 
+test("Test to render Display", () => {
+    render(<Display/>)
+    const display = screen.getByRole("img")
+    expect(display).toBeInTheDocument();
+})
 
+test("render display when fetch button is pressed", async () => {
+    render(<Display />)
+    fetchShow.mockResolvedValueOnce(testShow)
+    const button = screen.getByRole("button");
+    userEvent.click(button);
 
-
-
-
+    const showComp = await screen.findByTestId("show-container");
+    expect(showComp).toBeInTheDocument();
+});
 
 
 
