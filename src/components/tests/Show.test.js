@@ -6,23 +6,51 @@ import Show from './../Show';
 
 const testShow = {
     //add in approprate test data structure here.
-}
+    name: "Psych",
+    summary: "",
+    seasons: [
+        {id:0, name: "Season 1", episodes: ["25 million years off", "24 million years off", "23 million years off", ]}, 
+        {id:1, name: "Season 2", episodes: []}, 
+        {id:2, name: "Season 3", episodes: []}, 
+        {id:3, name: "Season 4", episodes: []}
+      ]}
 
 test('renders testShow and no selected Season without errors', ()=>{
+    render(<Show show={testShow} selectedSeason={"none"} />);
 });
 
 test('renders Loading component when prop show is null', () => {
+    render(<Show show={null} selectedSeason={"none"} />);
+    const loading = screen.queryByText(/Fetching data.../i);
+    expect(loading).toBeInTheDocument();
 });
 
 test('renders same number of options seasons are passed in', ()=>{
+    render(<Show show={testShow} selectedSeason={"none"}/>)
+    const seasonsShow = screen.getAllByTestId(/season-option/i);
+    expect(seasonsShow).toHaveLength(4);
 });
 
 test('handleSelect is called when an season is selected', () => {
+    const fakeFunc = jest.fn();
+    render(<Show show={testShow} selectedSeason={"none"} handleSelect={fakeFunc}/>);
+    const selector = screen.getByRole('combobox');
+    const seasons = screen.queryAllByTestId("season-option");
+
+    userEvent.selectOptions(selector, seasons[0]);
+    expect(fakeFunc).toBeCalledTimes(1);
 });
 
-test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
-});
+test('component renders when no seasons are selected and when rerenders with a season passed in', async () => {
+    const { rerender } = render(<Show show={testShow} selectedSeason={"none"} />);
+    const showEpisode = screen.queryByText(/25 million years off/i);
+    expect(showEpisode).not.toBeInTheDocument();
 
+    
+    rerender(<Show show={testShow} selectedSeason={0}/>)
+    const episode = await screen.findByText(/season 1/i)
+    expect(episode).toBeInTheDocument();
+});
 //Tasks:
 //1. Build an example data structure that contains the show data in the correct format. A show should contain a name, a summary and an array of seasons, each with a id, name and (empty) list of episodes within them. Use console.logs within the client code if you need to to verify the structure of show data.
 //2. Test that the Show component renders when your test data is passed in through show and "none" is passed in through selectedSeason.
